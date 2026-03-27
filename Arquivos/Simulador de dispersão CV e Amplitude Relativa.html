@@ -1,0 +1,227 @@
+
+<style>
+  .container { padding: 1rem 0; }
+  .section-label { font-size: 13px; color: var(--color-text-secondary); font-weight: 500; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px; }
+  .metric-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin-bottom: 1.5rem; }
+  .metric-card { background: var(--color-background-secondary); border-radius: var(--border-radius-md); padding: 1rem; }
+  .metric-card .label { font-size: 12px; color: var(--color-text-secondary); margin-bottom: 4px; }
+  .metric-card .value { font-size: 22px; font-weight: 500; }
+  .metric-card .formula { font-size: 11px; color: var(--color-text-tertiary); margin-top: 4px; }
+  .status-badge { display: inline-block; font-size: 12px; font-weight: 500; padding: 2px 10px; border-radius: var(--border-radius-md); margin-top: 6px; }
+  .stable { background: #EAF3DE; color: #3B6D11; }
+  .unstable { background: #FCEBEB; color: #A32D2D; }
+  .controls { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 1.5rem; }
+  .control-group { background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); padding: 1rem; }
+  .control-title { font-size: 13px; font-weight: 500; margin-bottom: 12px; color: var(--color-text-primary); }
+  .slider-row { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+  .slider-row label { font-size: 12px; color: var(--color-text-secondary); min-width: 60px; }
+  .slider-row input[type=range] { flex: 1; }
+  .slider-row .val { font-size: 12px; font-weight: 500; min-width: 36px; text-align: right; color: var(--color-text-primary); }
+  .chart-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 1.5rem; }
+  .chart-box { background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); padding: 1rem; }
+  .chart-title { font-size: 13px; font-weight: 500; margin-bottom: 8px; color: var(--color-text-secondary); }
+  .interpretation { background: var(--color-background-secondary); border-radius: var(--border-radius-lg); padding: 1rem 1.25rem; border-left: 3px solid #378ADD; }
+  .interpretation p { font-size: 13px; color: var(--color-text-secondary); margin: 4px 0; line-height: 1.6; }
+  .diff-table { width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 1rem; }
+  .diff-table th { font-size: 12px; font-weight: 500; color: var(--color-text-secondary); text-align: left; padding: 6px 8px; border-bottom: 0.5px solid var(--color-border-tertiary); }
+  .diff-table td { padding: 8px; border-bottom: 0.5px solid var(--color-border-tertiary); color: var(--color-text-primary); vertical-align: top; }
+  .diff-table tr:last-child td { border-bottom: none; }
+  .tab-row { display: flex; gap: 8px; margin-bottom: 1.5rem; }
+  .tab { font-size: 13px; padding: 6px 16px; border-radius: var(--border-radius-md); border: 0.5px solid var(--color-border-secondary); cursor: pointer; background: var(--color-background-primary); color: var(--color-text-secondary); }
+  .tab.active { background: #185FA5; color: #E6F1FB; border-color: #185FA5; }
+</style>
+
+<div class="container">
+
+  <div class="tab-row">
+    <button class="tab active" onclick="showTab('simulador')">Simulador</button>
+    <button class="tab" onclick="showTab('diferenca')">CV vs Amplitude relativa</button>
+  </div>
+
+  <div id="tab-simulador">
+    <div class="controls">
+      <div class="control-group">
+        <div class="control-title">Vendedor A — estável</div>
+        <div class="slider-row"><label>Jan</label><input type="range" min="10" max="200" value="95" id="a1" oninput="update()"><span class="val" id="va1">95</span></div>
+        <div class="slider-row"><label>Fev</label><input type="range" min="10" max="200" value="102" id="a2" oninput="update()"><span class="val" id="va2">102</span></div>
+        <div class="slider-row"><label>Mar</label><input type="range" min="10" max="200" value="98" id="a3" oninput="update()"><span class="val" id="va3">98</span></div>
+        <div class="slider-row"><label>Abr</label><input type="range" min="10" max="200" value="105" id="a4" oninput="update()"><span class="val" id="va4">105</span></div>
+        <div class="slider-row"><label>Mai</label><input type="range" min="10" max="200" value="100" id="a5" oninput="update()"><span class="val" id="va5">100</span></div>
+        <div class="slider-row"><label>Jun</label><input type="range" min="10" max="200" value="97" id="a6" oninput="update()"><span class="val" id="va6">97</span></div>
+      </div>
+      <div class="control-group">
+        <div class="control-title">Vendedor B — volátil</div>
+        <div class="slider-row"><label>Jan</label><input type="range" min="10" max="200" value="180" id="b1" oninput="update()"><span class="val" id="vb1">180</span></div>
+        <div class="slider-row"><label>Fev</label><input type="range" min="10" max="200" value="20" id="b2" oninput="update()"><span class="val" id="vb2">20</span></div>
+        <div class="slider-row"><label>Mar</label><input type="range" min="10" max="200" value="160" id="b3" oninput="update()"><span class="val" id="vb3">160</span></div>
+        <div class="slider-row"><label>Abr</label><input type="range" min="10" max="200" value="30" id="b4" oninput="update()"><span class="val" id="vb4">30</span></div>
+        <div class="slider-row"><label>Mai</label><input type="range" min="10" max="200" value="150" id="b5" oninput="update()"><span class="val" id="vb5">150</span></div>
+        <div class="slider-row"><label>Jun</label><input type="range" min="10" max="200" value="27" id="b6" oninput="update()"><span class="val" id="vb6">27</span></div>
+      </div>
+    </div>
+
+    <div class="metric-grid">
+      <div class="metric-card">
+        <div class="label">Média</div>
+        <div style="display:flex;gap:16px;">
+          <div><div style="font-size:11px;color:var(--color-text-tertiary)">Vendedor A</div><div class="value" id="mA" style="color:#185FA5">—</div></div>
+          <div><div style="font-size:11px;color:var(--color-text-tertiary)">Vendedor B</div><div class="value" id="mB" style="color:#A32D2D">—</div></div>
+        </div>
+        <div class="formula">soma ÷ n</div>
+      </div>
+      <div class="metric-card">
+        <div class="label">Amplitude relativa (Fator Bond)</div>
+        <div style="display:flex;gap:16px;">
+          <div><div style="font-size:11px;color:var(--color-text-tertiary)">Vendedor A</div><div class="value" id="bondA" style="color:#185FA5">—</div><div id="badgeBondA" class="status-badge"></div></div>
+          <div><div style="font-size:11px;color:var(--color-text-tertiary)">Vendedor B</div><div class="value" id="bondB" style="color:#A32D2D">—</div><div id="badgeBondB" class="status-badge"></div></div>
+        </div>
+        <div class="formula">(max − min) ÷ média · referência ≤ 0,7</div>
+      </div>
+      <div class="metric-card">
+        <div class="label">CV Six Sigma</div>
+        <div style="display:flex;gap:16px;">
+          <div><div style="font-size:11px;color:var(--color-text-tertiary)">Vendedor A</div><div class="value" id="cvA" style="color:#185FA5">—</div><div id="badgeCvA" class="status-badge"></div></div>
+          <div><div style="font-size:11px;color:var(--color-text-tertiary)">Vendedor B</div><div class="value" id="cvB" style="color:#A32D2D">—</div><div id="badgeCvB" class="status-badge"></div></div>
+        </div>
+        <div class="formula">desvpad ÷ (média ÷ 6) · referência ≤ 1,0</div>
+      </div>
+    </div>
+
+    <div class="chart-grid">
+      <div class="chart-box">
+        <div class="chart-title">Gráfico de dispersão — valores mensais</div>
+        <div style="position:relative;height:200px;"><canvas id="scatter"></canvas></div>
+      </div>
+      <div class="chart-box">
+        <div class="chart-title">Comparação das métricas</div>
+        <div style="position:relative;height:200px;"><canvas id="barras"></canvas></div>
+      </div>
+    </div>
+
+    <div class="interpretation" id="interpretacao"></div>
+  </div>
+
+  <div id="tab-diferenca" style="display:none;">
+    <div class="interpretation" style="margin-bottom:1.5rem;">
+      <p><strong>Amplitude relativa</strong> mede o <em>alcance</em> da variação — a distância entre o pior e o melhor resultado, relativizada pela média. Responde: <em>"quão longe os extremos ficam entre si?"</em></p>
+      <p style="margin-top:8px;"><strong>CV Six Sigma</strong> mede a <em>dispersão média</em> em torno da média, dentro da lógica de 6 desvios padrões tolerados. Responde: <em>"quão instável é o comportamento típico?"</em></p>
+    </div>
+    <table class="diff-table">
+      <thead>
+        <tr>
+          <th>Dimensão</th>
+          <th>Amplitude relativa</th>
+          <th>CV Six Sigma</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>Pergunta central</td><td>Quão distantes são os extremos?</td><td>Quão volátil é o comportamento típico?</td></tr>
+        <tr><td>O que usa</td><td>Máximo e mínimo</td><td>Desvio padrão e média</td></tr>
+        <tr><td>Sensível a outliers?</td><td>Muito — um único pico distorce</td><td>Moderado — dilui no desvio padrão</td></tr>
+        <tr><td>Referência de controle</td><td>≤ 0,7</td><td>≤ 1,0</td></tr>
+        <tr><td>Origem</td><td>Estatística descritiva (amplitude relativa)</td><td>Metodologia Six Sigma (σ)</td></tr>
+        <tr><td>Analogia simples</td><td>Distância entre o 1º e o último colocado</td><td>Quanto cada corredor varia em relação ao próprio ritmo médio</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+let scatterChart, barChart;
+
+function showTab(tab) {
+  document.getElementById('tab-simulador').style.display = tab === 'simulador' ? '' : 'none';
+  document.getElementById('tab-diferenca').style.display = tab === 'diferenca' ? '' : 'none';
+  document.querySelectorAll('.tab').forEach((t,i) => {
+    t.classList.toggle('active', (i===0 && tab==='simulador') || (i===1 && tab==='diferenca'));
+  });
+}
+
+function vals(prefix) {
+  return [1,2,3,4,5,6].map(i => +document.getElementById(prefix+i).value);
+}
+
+function mean(arr) { return arr.reduce((a,b)=>a+b,0)/arr.length; }
+function std(arr) {
+  const m = mean(arr);
+  return Math.sqrt(arr.reduce((s,v)=>s+(v-m)**2,0)/arr.length);
+}
+
+function update() {
+  const a = vals('a'), b = vals('b');
+  [1,2,3,4,5,6].forEach(i => {
+    document.getElementById('va'+i).textContent = a[i-1];
+    document.getElementById('vb'+i).textContent = b[i-1];
+  });
+
+  const mA = mean(a), mB = mean(b);
+  const bondA = (Math.max(...a)-Math.min(...a))/mA;
+  const bondB = (Math.max(...b)-Math.min(...b))/mB;
+  const cvA = std(a)/(mA/6);
+  const cvB = std(b)/(mB/6);
+
+  document.getElementById('mA').textContent = mA.toFixed(1);
+  document.getElementById('mB').textContent = mB.toFixed(1);
+  document.getElementById('bondA').textContent = bondA.toFixed(2);
+  document.getElementById('bondB').textContent = bondB.toFixed(2);
+  document.getElementById('cvA').textContent = cvA.toFixed(2);
+  document.getElementById('cvB').textContent = cvB.toFixed(2);
+
+  function badge(el, val, ref) {
+    el.textContent = val <= ref ? 'Controlado' : 'Alta variação';
+    el.className = 'status-badge ' + (val <= ref ? 'stable' : 'unstable');
+  }
+  badge(document.getElementById('badgeBondA'), bondA, 0.7);
+  badge(document.getElementById('badgeBondB'), bondB, 0.7);
+  badge(document.getElementById('badgeCvA'), cvA, 1.0);
+  badge(document.getElementById('badgeCvB'), cvB, 1.0);
+
+  const meses = ['Jan','Fev','Mar','Abr','Mai','Jun'];
+  if (scatterChart) scatterChart.destroy();
+  scatterChart = new Chart(document.getElementById('scatter'), {
+    type: 'line',
+    data: {
+      labels: meses,
+      datasets: [
+        { label: 'Vendedor A', data: a, borderColor: '#185FA5', backgroundColor: '#185FA540', tension: 0.3, pointRadius: 5 },
+        { label: 'Vendedor B', data: b, borderColor: '#A32D2D', backgroundColor: '#A32D2D40', tension: 0.3, pointRadius: 5 }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { labels: { font: { size: 12 }, boxWidth: 12 } } },
+      scales: { y: { beginAtZero: false, ticks: { font: { size: 11 } } }, x: { ticks: { font: { size: 11 } } } }
+    }
+  });
+
+  if (barChart) barChart.destroy();
+  barChart = new Chart(document.getElementById('barras'), {
+    type: 'bar',
+    data: {
+      labels: ['Amplitude rel. A', 'Amplitude rel. B', 'CV σ A', 'CV σ B'],
+      datasets: [{
+        data: [bondA, bondB, cvA, cvB],
+        backgroundColor: ['#B5D4F4','#F7C1C1','#B5D4F4','#F7C1C1'],
+        borderColor: ['#185FA5','#A32D2D','#185FA5','#A32D2D'],
+        borderWidth: 1.5
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: { y: { beginAtZero: true, ticks: { font: { size: 11 } } }, x: { ticks: { font: { size: 10 }, maxRotation: 20 } } }
+    }
+  });
+
+  const aOk = bondA<=0.7 && cvA<=1.0;
+  const bOk = bondB<=0.7 && cvB<=1.0;
+  document.getElementById('interpretacao').innerHTML = `
+    <p><strong>Vendedor A:</strong> Amplitude relativa = ${bondA.toFixed(2)} ${bondA<=0.7?'✓ controlada':'✗ alta'}. CV Six Sigma = ${cvA.toFixed(2)} ${cvA<=1.0?'✓ controlado':'✗ alto'}. ${aOk?'Processo estável — comportamento previsível.':'Processo instável — atenção à consistência.'}</p>
+    <p style="margin-top:6px;"><strong>Vendedor B:</strong> Amplitude relativa = ${bondB.toFixed(2)} ${bondB<=0.7?'✓ controlada':'✗ alta'}. CV Six Sigma = ${cvB.toFixed(2)} ${cvB<=1.0?'✓ controlado':'✗ alto'}. ${bOk?'Processo estável.':'Processo instável — mesmo que a média seja igual, a dispersão revela risco.'}</p>
+  `;
+}
+
+update();
+</script>
